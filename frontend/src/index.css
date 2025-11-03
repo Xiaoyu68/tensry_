@@ -1,0 +1,21 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400&display=swap');
+
+@font-face {
+  font-family: 'Island Moments';
+  font-style: normal;
+  font-weight: 400;
+  src: local('Island Moments'), local('IslandMoments-Regular'),
+    url('https://fonts.gstatic.com/s/islandmoments/v14/hv-wwhU5VC8HmlHFQxdzNIB44W8n0g.ttf')
+      format('truetype');
+}
+
+body {
+  margin: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background-color: #eeedec;
+  color: #0a0a0a;
+}
+
+* {
+  box-sizing: border-box;
+}
