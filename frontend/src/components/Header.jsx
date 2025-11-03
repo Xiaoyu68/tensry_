@@ -34,11 +34,17 @@ const Header = ({ breadcrumbs }) => (
     <Link to="/" className="brand" aria-label="Go to Tensyr home">
       Tensyr
     </Link>
-    <div className="top-bar__icons">
-      <IconPlaceholder label="Closet" svg={CheckroomIcon} />
-      <IconPlaceholder label="Bag" svg={ShoppingBagIcon} />
-      <IconPlaceholder label="Account" svg={AccountIcon} />
-    </div>
+    <nav className="top-bar__icons" aria-label="Supplementary navigation">
+      <Link to="/recommendations" aria-label="Go to AI Stylist input">
+        <IconPlaceholder label="Closet" svg={CheckroomIcon} />
+      </Link>
+      <Link to="/ai-recommendations" aria-label="Go to AI recommendations">
+        <IconPlaceholder label="Bag" svg={ShoppingBagIcon} />
+      </Link>
+      <Link to="/login" aria-label="Go to login">
+        <IconPlaceholder label="Account" svg={AccountIcon} />
+      </Link>
+    </nav>
   </header>
 );
 

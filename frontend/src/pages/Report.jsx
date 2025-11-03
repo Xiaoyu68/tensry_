@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 const summarySections = [
@@ -76,10 +77,20 @@ const Report = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const capturedItems = location.state?.items ?? [];
+  const [saveToast, setSaveToast] = useState(null);
+
+  useEffect(() => {
+    if (!saveToast) {
+      return undefined;
+    }
+    const timer = setTimeout(() => setSaveToast(null), 3200);
+    return () => clearTimeout(timer);
+  }, [saveToast]);
 
   const handleSave = () => {
     // eslint-disable-next-line no-console
     console.log('Save report triggered.', { capturedItems });
+    setSaveToast('Report saved successfully.');
   };
 
   const handleAiRecommendations = () => {
@@ -88,6 +99,17 @@ const Report = () => {
 
   return (
     <div className="report">
+      <div className="notification-region" aria-live="polite" aria-atomic="true">
+        {saveToast ? (
+          <div className="notification notification--success" role="status">
+            <span aria-hidden="true" className="notification__icon">
+              ✓
+            </span>
+            <span className="notification__message">{saveToast}</span>
+          </div>
+        ) : null}
+      </div>
+
       <div className="report__toolbar">
         <button
           type="button"

@@ -14,32 +14,35 @@ const categories = [
   { id: 'lighting', label: 'Lighting', icon: '💡' },
 ];
 
-const libraryAssets = [
-  { id: 'nature-fern', category: 'nature', label: 'Fern', icon: '🌿', background: 'linear-gradient(135deg, #6b8f71 0%, #b2c7a7 100%)' },
-  { id: 'nature-sunrise', category: 'nature', label: 'Sunrise', icon: '🌅', background: 'linear-gradient(135deg, #f3ca6b 0%, #f08a5d 100%)' },
-  { id: 'nature-ocean', category: 'nature', label: 'Ocean', icon: '🌊', background: 'linear-gradient(135deg, #1a535c 0%, #4ecdc4 100%)' },
-  { id: 'fabric-silk', category: 'fabric', label: 'Silk', icon: '🪡', background: 'linear-gradient(135deg, #f4eade 0%, #c7b8a6 100%)' },
-  { id: 'fabric-denim', category: 'fabric', label: 'Denim', icon: '👖', background: 'linear-gradient(135deg, #27496d 0%, #142850 100%)' },
-  { id: 'pattern-stripes', category: 'pattern', label: 'Stripes', icon: '📶', background: 'linear-gradient(135deg, #ffb6b9 0%, #fae3d9 100%)' },
-  { id: 'pattern-plaid', category: 'pattern', label: 'Plaid', icon: '🟥', background: 'linear-gradient(135deg, #d72323 0%, #3a4750 100%)' },
-  { id: 'color-muted', category: 'color', label: 'Muted', icon: '🎨', background: 'linear-gradient(135deg, #7f8fa6 0%, #c7d6d5 100%)' },
-  { id: 'color-bold', category: 'color', label: 'Bold', icon: '🟣', background: 'linear-gradient(135deg, #9c1de7 0%, #f3558e 100%)' },
-  { id: 'texture-knitted', category: 'texture', label: 'Knitted', icon: '🧶', background: 'linear-gradient(135deg, #ff7f50 0%, #feb47b 100%)' },
-  { id: 'texture-grain', category: 'texture', label: 'Grain', icon: '🪵', background: 'linear-gradient(135deg, #a17457 0%, #d6b89c 100%)' },
-  { id: 'silhouette-wide', category: 'silhouette', label: 'Wide', icon: '🧥', background: 'linear-gradient(135deg, #2c3e50 0%, #4ca1af 100%)' },
-  { id: 'silhouette-fitted', category: 'silhouette', label: 'Fitted', icon: '👗', background: 'linear-gradient(135deg, #ff5f6d 0%, #ffc371 100%)' },
-  { id: 'accessory-hat', category: 'accessory', label: 'Hat', icon: '👒', background: 'linear-gradient(135deg, #f4d03f 0%, #16a085 100%)' },
-  { id: 'accessory-bag', category: 'accessory', label: 'Bag', icon: '👜', background: 'linear-gradient(135deg, #614385 0%, #516395 100%)' },
-  { id: 'lighting-warm', category: 'lighting', label: 'Warm', icon: '🔆', background: 'linear-gradient(135deg, #ffd452 0%, #f7b733 100%)' },
-  { id: 'lighting-cool', category: 'lighting', label: 'Cool', icon: '🔦', background: 'linear-gradient(135deg, #30cfd0 0%, #330867 100%)' },
-];
+const imageContext = require.context(
+  '../assets/icons/sandbox_img',
+  false,
+  /\.(png|jpe?g|svg)$/
+);
+
+const imageAssets = imageContext.keys().map((key, index) => {
+  const src = imageContext(key);
+  const filename = key.replace('./', '');
+  const label = filename.replace(/\.[^/.]+$/, '').replace(/[_-]+/g, ' ');
+  const category = 'nature';
+  return {
+    id: `asset-${index}`,
+    category,
+    label,
+    image: src,
+  };
+});
+
+const libraryAssets = imageAssets;
+
+const initialCanvasItems = [];
 
 const clamp = (value, min, max) => Math.min(Math.max(value, min), max);
 
 const Sandbox = () => {
   const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState(categories[0].id);
-  const [canvasItems, setCanvasItems] = useState([]);
+  const [canvasItems, setCanvasItems] = useState(initialCanvasItems);
   const [selectedItemId, setSelectedItemId] = useState(null);
   const canvasRef = useRef(null);
   const pointerState = useRef({ mode: null, itemId: null });
@@ -117,6 +120,12 @@ const Sandbox = () => {
     (event, item) => {
       event.stopPropagation();
       event.preventDefault();
+      if (
+        event.target.closest('.sandbox__canvas-remove') ||
+        event.target.closest('.sandbox__resize-handle')
+      ) {
+        return;
+      }
       if (!canvasRef.current) {
         return;
       }
@@ -304,7 +313,6 @@ const Sandbox = () => {
                   role="button"
                   tabIndex={0}
                   className="sandbox__asset"
-                  style={{ background: asset.background }}
                   draggable
                   onClick={() => handleAssetClick(asset.id)}
                   onKeyDown={(event) => {
@@ -315,10 +323,7 @@ const Sandbox = () => {
                   }}
                   onDragStart={(event) => handleAssetDragStart(event, asset)}
                 >
-                  <span className="sandbox__asset-icon" aria-hidden="true">
-                    {asset.icon}
-                  </span>
-                  <span className="sandbox__asset-label">{asset.label}</span>
+                  <img src={asset.image} alt={asset.label} className="sandbox__asset-image" />
                 </div>
               ))}
             </div>
@@ -360,23 +365,22 @@ const Sandbox = () => {
                   width: size,
                   height: size,
                   transform: `translate(${item.x}px, ${item.y}px)`,
-                  background: asset.background,
                 }}
                 onPointerDown={(event) => beginDrag(event, item)}
                 onPointerMove={(event) => continuePointerInteraction(event, item.id)}
                 onPointerUp={endPointerInteraction}
                 onPointerCancel={endPointerInteraction}
               >
-                <span className="sandbox__canvas-item-icon" aria-hidden="true">
-                  {asset.icon}
-                </span>
-                <span className="sandbox__canvas-item-label">{asset.label}</span>
+                <img src={asset.image} alt={asset.label} className="sandbox__canvas-item-image" />
                 <button
                   type="button"
                   className="sandbox__canvas-remove"
                   onClick={(event) => {
                     event.stopPropagation();
                     setCanvasItems((items) => items.filter((entry) => entry.id !== item.id));
+                    if (selectedItemId === item.id) {
+                      setSelectedItemId(null);
+                    }
                   }}
                 >
                   ×
